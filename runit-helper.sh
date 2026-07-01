@@ -1,26 +1,21 @@
 #!/bin/bash
+set -e
 
+function create_supervise_dir {
 
-if [ $# -eq 1 ]; then
-
-    #SUPERVISE_ROOT=/run/runit
-
-    #SUPERVISE_DIR=/run/runit/supervise.$1
-
-    SUPERVISE_DIR=$(pwd)/teste
-    
     echo $SUPERVISE_DIR
 
     if [ ! -d "$SUPERVISE_DIR" ]; then
-        mkdir "$SUPERVISE_DIR"
-        chmod 700 "$SUPERVISE_DIR"
+        mkdir -p "$SUPERVISE_DIR"
+        chmod -v 700 "$SUPERVISE_DIR"
     fi
 
 
     for i in control ok; do 
         if [ ! -p "$SUPERVISE_DIR/$i" ]; then
             mkfifo "$SUPERVISE_DIR/$i";
-            chmod 600 "$SUPERVISE_DIR/$i"
+            echo "$SUPERVISE_DIR/$i"
+            chmod -v 600 "$SUPERVISE_DIR/$i"
         fi;
     done
 
@@ -30,9 +25,34 @@ if [ $# -eq 1 ]; then
         fi;
     done
 
-    chmod 600 "$SUPERVISE_DIR/lock"
+    chmod -v 600 "$SUPERVISE_DIR/lock"
 
+}
 
+function create_service_dir {
+
+    mkdir -p "$SERVICE_DIR"
+
+    echo "$SERVICE_DIR"
+    
+    cp -v $1 "$SERVICE_DIR/run"
+
+    chmod -v +x "$SERVICE_DIR/run"
+
+    ln -sv "$SUPERVISE_DIR" "$SERVICE_DIR/supervise"
+
+}
+
+if [ $# -eq 2 ]; then
+
+    
+    SUPERVISE_DIR=/run/runit/supervise.$1
+    
+    SERVICE_DIR=/etc/sv/$1
+
+    create_supervise_dir $1
+
+    create_service_dir $2
 
 else 
     echo "Argumento invalido"
