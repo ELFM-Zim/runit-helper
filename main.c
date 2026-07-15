@@ -1,51 +1,38 @@
+#include "file_creator/file_creator.h"
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
 #include <unistd.h>
-int main(int argc, char *argv[])
-{
-    printf("%s\n", argv[0]);
 
-    int fd = 0;
-
-    if(mkdir("teste", 0100700) == -1){goto erro;}
-    if(mkfifo("teste/control", 0000600) == -1){goto erro;}
-    if(mkfifo("teste/ok", 0000600) == -1){goto erro;}
-
-    printf("%i\n", fd);
-    fd = open("teste/lock", O_CREAT | O_RDONLY, 0006000);
-    if(fd == -1) {goto erro;}
-    close(fd);
-
-    printf("%i\n", fd);
-    fd = open("teste/pid",    O_CREAT | O_RDONLY, 0000600);
-    if(fd == -1){goto erro;}
-    close(fd);
-
-
-    printf("%i\n", fd);
-    fd = open("teste/stat",   O_CREAT | O_RDONLY, 0000600); 
-    if(fd == -1){goto erro;}
-    close(fd);
-
-    printf("%i\n", fd);
-    fd = open("teste/status", O_CREAT | O_RDONLY, 0000600);
-    if(fd == -1){goto erro;}
-    close(fd);
-
-    
-
-    printf("%i\n", fd);
-
-    return 0;
-
-    erro:
-        int erro = errno;
-        
-        printf("%s\n", strerror(erro));
-
-        return erro;
+int main(int argc, char *argv[]) {
+  int result;
+  result = create_file("teste", DIRECTORY, 0000700);
+  if (result) {
+    return result;
+  }
+  result = create_file("teste/control", FIFO, 0000600);
+  if (result) {
+    return result;
+  }
+  result = create_file("teste/ok", FIFO, 0000600);
+  if (result) {
+    return result;
+  }
+  result = create_file("teste/lock", NORMAL, 0000600);
+  if (result) {
+    return result;
+  }
+  result = create_file("teste/pid", NORMAL, 0000644);
+  if (result) {
+    return result;
+  }
+  result = create_file("teste/stat", NORMAL, 0000644);
+  if (result) {
+    return result;
+  }
+  result = create_file("teste/status", NORMAL, 0000644);
+  if (result) {
+    return result;
+  }
+  return 0;
 }
