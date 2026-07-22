@@ -5,24 +5,24 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 int create_runit_service_directory(char* path){
 	
 	char temp[sizeof(path) + 11];
 
-	strcpy(temp, path);
 
   int result;
 
-  if((result = create_file(temp, DIRECTORY, 0000700))){
+  if((result = create_file(path, DIRECTORY, 0000700))){
 		return result;
   }
 
+	strcpy(temp, path);
   if((result = create_file(strcat(temp, "/control"), FIFO, 0000600))){
 		return result;
   }
 
-	strcpy(temp, path);
-	printf("%s\n" ,strcat(path, "/ok"));
 	strcpy(temp, path);
   if((result = create_file(strcat(temp, "/ok"), FIFO, 0000600))){
 	return result;
@@ -65,7 +65,11 @@ int main(int argc, char *argv[]) {
 				printf("Result :%i\n", create_runit_service_directory(optarg));
 				break;
 			case '?':
-				printf("Invalid option\nusage: configurit [-p <path to directory>]");
+				fprintf(stderr, "Unknow option '-%c'.\n, optopt");
+				return -1;
+				break;
+			default:
+				abort();
 		}
 	}
 
